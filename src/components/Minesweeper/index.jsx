@@ -17,6 +17,7 @@ function generateField(rows, cols) {
         .map(() => ({
           opened: false,
           isBomb: false,
+          around: 0,
         }));
     });
 
@@ -31,6 +32,13 @@ function generateField(rows, cols) {
     }
 
     field[randomRow][randomCol].isBomb = true;
+
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        field[randomRow + i]?.[randomCol + j] && field[randomRow + i][randomCol + j].around++;
+      }
+    }
+
     bombsCount--;
   }
 
@@ -40,17 +48,35 @@ function generateField(rows, cols) {
 function Minesweeper() {
   const [field, setField] = useState(generateField(10, 12));
 
+  // console.log(field);
+
   function handleClick(evt, x, y, isBomb) {
-    const prevCell = { ...field[y][x], opened: true };
-    const prevField = [...field];
-    prevField[y][x] = prevCell;
-
-    setField(prevField);
-
     if (isBomb) {
       alert('You lose');
       return;
     }
+
+    const prevField = openCells([...field], x, y);
+
+    setField(prevField);
+  }
+
+  function openCells(field, x, y) {
+    const cell = field?.[y]?.[x];
+
+    if (cell?.opened || !cell) return;
+
+    const prevCell = { ...cell, opened: true };
+    field[y][x] = prevCell;
+
+    if (cell.around === 0) {
+      openCells(field, x, y - 1);
+      openCells(field, x - 1, y);
+      openCells(field, x + 1, y);
+      openCells(field, x, y + 1);
+    }
+
+    return field;
   }
 
   return (
@@ -65,6 +91,7 @@ function Minesweeper() {
               x={xIndex}
               opened={cell.opened}
               isBomb={cell.isBomb}
+              around={cell.around}
               key={xIndex}
             />
           ))}
