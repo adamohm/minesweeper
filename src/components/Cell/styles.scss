@@ -13,6 +13,13 @@
   &:not(.opened, .flagged):active {
     background: #ccc;
   }
+
+  &::before {
+    font-size: 23px;
+    position: relative;
+    top: 1px;
+    left: 1px;
+  }
 }
 
 .opened {
@@ -22,8 +29,8 @@
 
 .flagged::before {
   content: '🚩';
-  font-size: 23px;
-  position: relative;
-  top: 1px;
-  left: 1px;
+}
+
+.isBomb.opened::before {
+  content: '💣';
 }

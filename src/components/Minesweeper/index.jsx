@@ -46,6 +46,11 @@ function Minesweeper() {
     prevField[y][x] = prevCell;
 
     setField(prevField);
+
+    if (isBomb) {
+      alert('You lose');
+      return;
+    }
   }
 
   return (
@@ -59,7 +64,7 @@ function Minesweeper() {
               y={yIndex}
               x={xIndex}
               opened={cell.opened}
-              isBomb={cell.bomb}
+              isBomb={cell.isBomb}
               key={xIndex}
             />
           ))}

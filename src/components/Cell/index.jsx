@@ -22,6 +22,7 @@ function Cell({ opened, onClick, y, x, isBomb }) {
       className={cn(styles.cell, {
         [styles.opened]: opened,
         [styles.flagged]: isFlagged,
+        [styles.isBomb]: isBomb,
       })}
     ></div>
   );
