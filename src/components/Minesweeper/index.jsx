@@ -15,8 +15,8 @@ function generateField(rows, cols) {
       return Array(cols)
         .fill()
         .map(() => ({
-          status: 0,
-          bomb: false,
+          opened: false,
+          isBomb: false,
         }));
     });
 
@@ -26,11 +26,11 @@ function generateField(rows, cols) {
     const randomRow = randomInteger(0, rows - 1);
     const randomCol = randomInteger(0, cols - 1);
 
-    if (field[randomRow][randomCol].bomb) {
+    if (field[randomRow][randomCol].isBomb) {
       continue;
     }
 
-    field[randomRow][randomCol].bomb = true;
+    field[randomRow][randomCol].isBomb = true;
     bombsCount--;
   }
 
@@ -40,15 +40,28 @@ function generateField(rows, cols) {
 function Minesweeper() {
   const [field, setField] = useState(generateField(10, 12));
 
-  console.log(field);
+  function handleClick(evt, x, y, isBomb) {
+    const prevCell = { ...field[y][x], opened: true };
+    const prevField = [...field];
+    prevField[y][x] = prevCell;
+
+    setField(prevField);
+  }
 
   return (
-    <div className={styles.field}>
-      {field.map((row, index) => (
+    <div className={styles.field} onContextMenu={e => e.preventDefault()}>
+      {field.map((row, yIndex) => (
         // here indices are used as keys because an order of the elements is not important
-        <Row key={index}>
-          {row.map((cell, index) => (
-            <Cell key={index} />
+        <Row key={yIndex}>
+          {row.map((cell, xIndex) => (
+            <Cell
+              onClick={handleClick}
+              y={yIndex}
+              x={xIndex}
+              opened={cell.opened}
+              isBomb={cell.bomb}
+              key={xIndex}
+            />
           ))}
         </Row>
       ))}
