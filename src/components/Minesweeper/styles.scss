@@ -7,7 +7,14 @@
   justify-content: space-between;
 }
 
-.message {
+.input {
+  width: 1.5em;
+  border: none;
+  outline: none;
+  border-bottom: 2px solid blue;
+  margin: 0 5px;
+  font-family: inherit;
+  font-size: inherit;
 }
 
 .timer {
@@ -21,6 +28,7 @@
   font-size: 0.8em;
   text-transform: uppercase;
   cursor: pointer;
+  margin-left: 10px;
 
   &:hover {
     outline: 1px solid #000;
