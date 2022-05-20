@@ -57,7 +57,6 @@ function Minesweeper() {
     if (bombsCount === closedCells.length) {
       setIsGameOver('You won!');
       clearInterval(timerId.current);
-      setTimer(0);
     }
   });
 
@@ -76,7 +75,6 @@ function Minesweeper() {
     if (isBomb) {
       setIsGameOver('You lose!');
       clearInterval(timerId.current);
-      setTimer(0);
     }
 
     setField(prevField => openCells([...prevField], x, y));
