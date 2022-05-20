@@ -1,0 +1,32 @@
+.panel {
+  font-size: 1.5em;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.message {
+}
+
+.timer {
+  margin: 10px 0;
+}
+
+.btn {
+  background: rgb(71, 218, 255);
+  border: none;
+  padding: 5px 10px;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  &:hover {
+    outline: 1px solid #000;
+  }
+
+  &:active {
+    transform: translateY(2px);
+  }
+}

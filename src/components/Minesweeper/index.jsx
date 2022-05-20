@@ -1,9 +1,9 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Cell from '../Cell';
 import Row from '../Row';
 import styles from './styles.scss';
 
-function randomInteger(min, max) {
+function randomInt(min, max) {
   const rand = min - 0.5 + Math.random() * (max - min + 1);
   return Math.round(rand);
 }
@@ -11,9 +11,9 @@ function randomInteger(min, max) {
 function openCells(field, x, y) {
   const cell = field?.[y]?.[x];
 
-  if (cell?.opened || !cell) return;
+  if (cell?.status === 1 || !cell) return;
 
-  const prevCell = { ...cell, opened: true };
+  const prevCell = { ...cell, status: 1 };
   field[y][x] = prevCell;
 
   if (cell.around === 0) {
@@ -33,7 +33,7 @@ function generateField(rows, cols) {
       return Array(cols)
         .fill()
         .map(() => ({
-          opened: false,
+          status: 0,
           isBomb: false,
           around: 0,
         }));
@@ -45,23 +45,53 @@ function generateField(rows, cols) {
 function Minesweeper() {
   const [size, setSize] = useState([10, 10]);
   const [field, setField] = useState(generateField(size[0], size[1]));
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [timer, setTimer] = useState(0);
   const isFirstClick = useRef(true);
+  const timerId = useRef(null);
 
-  // console.log(field);
+  useEffect(() => {
+    const bombsCount = (size[0] + size[1]) / 2;
+    const closedCells = field.flat().filter(cell => cell.status === 0);
 
-  function handleClick(evt, x, y, isBomb) {
+    if (bombsCount === closedCells.length) {
+      setIsGameOver('You won!');
+      clearInterval(timerId.current);
+      setTimer(0);
+    }
+  });
+
+  function handleClick(x, y, isBomb) {
+    if (isGameOver) return;
+
     if (isFirstClick.current) {
       generateBombs(x, y);
+      timerId.current = setInterval(() => {
+        setTimer(st => st + 1);
+      }, 1000);
     }
 
     isFirstClick.current = false;
 
     if (isBomb) {
-      alert('You lose');
-      return;
+      setIsGameOver('You lose!');
+      clearInterval(timerId.current);
+      setTimer(0);
     }
 
     setField(prevField => openCells([...prevField], x, y));
+  }
+
+  function handleContextMenu(x, y) {
+    if (isGameOver) return;
+
+    setField(prevField => {
+      const field = [...prevField];
+      const prevCell = { ...prevField[y][x], status: prevField[y][x].status === 2 ? 0 : 2 };
+      field[y][x] = prevCell;
+
+      return field;
+    });
   }
 
   function generateBombs(x, y) {
@@ -71,8 +101,8 @@ function Minesweeper() {
       const field = [...prevField];
 
       while (bombsCount) {
-        const randomRow = randomInteger(0, size[0] - 1);
-        const randomCol = randomInteger(0, size[1] - 1);
+        const randomRow = randomInt(0, size[0] - 1);
+        const randomCol = randomInt(0, size[1] - 1);
 
         if (field[randomRow][randomCol].isBomb || (randomRow === y && randomCol === x)) {
           continue;
@@ -99,24 +129,45 @@ function Minesweeper() {
     });
   }
 
+  function restart() {
+    setField(generateField(size[0], size[1]));
+    setIsGameOver(false);
+    clearInterval(timerId.current);
+    setTimer(0);
+    isFirstClick.current = true;
+    timerId.current = null;
+  }
+
   return (
-    <div className={styles.field} onContextMenu={e => e.preventDefault()}>
-      {field.map((row, yIndex) => (
-        // here indices are used as keys because an order of the elements is not important
-        <Row key={yIndex}>
-          {row.map((cell, xIndex) => (
-            <Cell
-              onClick={handleClick}
-              y={yIndex}
-              x={xIndex}
-              opened={cell.opened}
-              isBomb={cell.isBomb}
-              around={cell.around}
-              key={xIndex}
-            />
-          ))}
-        </Row>
-      ))}
+    <div>
+      <div className={styles.panel}>
+        <div className={styles.timer}>⌛ {timer}</div>
+        <div className={styles.message}>{isGameOver}</div>
+        <div className={styles.controls}>
+          <button onClick={restart} className={styles.btn}>
+            Restart
+          </button>
+        </div>
+      </div>
+      <div className={styles.field} onContextMenu={e => e.preventDefault()}>
+        {field.map((row, yIndex) => (
+          // here indices are used as keys because an order of the elements is not important
+          <Row key={yIndex}>
+            {row.map((cell, xIndex) => (
+              <Cell
+                onClick={handleClick}
+                onContextMenu={handleContextMenu}
+                y={yIndex}
+                x={xIndex}
+                status={cell.status}
+                isBomb={cell.isBomb}
+                around={cell.around}
+                key={xIndex}
+              />
+            ))}
+          </Row>
+        ))}
+      </div>
     </div>
   );
 }
