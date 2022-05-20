@@ -17,10 +17,11 @@ function openCells(field, x, y) {
   field[y][x] = newCell;
 
   if (cell.around === 0) {
-    openCells(field, x, y - 1);
-    openCells(field, x - 1, y);
-    openCells(field, x + 1, y);
-    openCells(field, x, y + 1);
+    for (let i = -1; i <= 1; i++) {
+      for (let j = -1; j <= 1; j++) {
+        openCells(field, x + i, y + j);
+      }
+    }
   }
 
   return field;
